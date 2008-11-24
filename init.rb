@@ -1,4 +1,6 @@
-require 'technoweenie/labeled_form_helper'
-ActionView::Base.send                 :include, Technoweenie::LabeledFormHelper
-ActionView::Helpers::InstanceTag.send :include, Technoweenie::LabeledInstanceTag
-ActionView::Helpers::FormBuilder.send :include, Technoweenie::FormBuilderMethods
+require 'mojodna/required_attributes'
+require 'mojodna/labeled_form_helper'
+ActionView::Base.send                 :include, MojoDNA::LabeledFormHelper
+ActionView::Helpers::InstanceTag.send :include, MojoDNA::LabeledInstanceTag
+ActionView::Helpers::FormBuilder.send :include, MojoDNA::FormBuilderMethods
+

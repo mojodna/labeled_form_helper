@@ -1,4 +1,4 @@
-module Technoweenie #:nodoc:
+module MojoDNA #:nodoc:
   module LabeledFormHelper
     [:form_for, :fields_for, :form_remote_for, :remote_form_for].each do |meth|
       src = <<-end_src
@@ -17,7 +17,7 @@ module Technoweenie #:nodoc:
     # Example (call, result).
     #   label_for('post', 'category')
     #     <label for="post_category">Category</label>
-    # 
+    #
     #   label_for('post', 'category', 'text' => 'This Category')
     #     <label for="post_category">This Category</label>
     def label_for(object_name, method, options = {})
@@ -50,11 +50,11 @@ module Technoweenie #:nodoc:
 
   class LabeledFormBuilder < ActionView::Helpers::FormBuilder #:nodoc:
     (%w(date_select) +
-     ActionView::Helpers::FormHelper.instance_methods - 
+     ActionView::Helpers::FormHelper.instance_methods -
      %w(label_for hidden_field check_box radio_button form_for fields_for)).each do |selector|
       src = <<-end_src
         def #{selector}(method, options = {})
-          @template.content_tag('p', label_for(method) + super)
+          wrap_fields(method, options) { super }
         end
       end_src
       class_eval src, __FILE__, __LINE__
@@ -65,23 +65,45 @@ module Technoweenie #:nodoc:
     end
 
     def check_box(method, options = {}, checked_value = "1", unchecked_value = "0")
-      @template.content_tag('p', label_for(method) + "<br />" + super)
+      wrap_fields(method, options) { super }
     end
-    
+
     def radio_button(method, tag_value, options = {})
-      @template.content_tag('p', label_for(method) + "<br />" + super)
+      wrap_fields(method, options) { super }
     end
 
     def select(method, choices, options = {}, html_options = {})
-      @template.content_tag('p', label_for(method) + "<br />" + super)
+      wrap_fields(method, options) { super }
     end
 
     def country_select(method, priority_countries = nil, options = {}, html_options = {})
-      @template.content_tag('p', label_for(method) + "<br />" + super)
+      wrap_fields(method, options) { super }
+    end
+
+    def us_state_select(method, us_state_options = {}, options = {}, html_options = {})
+      wrap_fields(method, options) { super }
     end
 
     def fields_for(object_name, *args, &proc)
       @template.labeled_fields_for(object_name, *args, &proc)
+    end
+
+  protected
+
+    def wrap_fields(method, options, &block)
+      label = options.delete :label
+      required_opt = options.delete :required
+      unless label == false
+        klass = object ? object.class : object_name.to_s.camelize.constantize
+        required = if required_opt || (klass.respond_to?(:requires?) && klass.requires?(method))
+          @template.content_tag('span', '* required', :class => "required")
+        else
+          ""
+        end
+        @template.content_tag('p', label_for(method, :class => "form_label", :text => label) + @template.content_tag('span', yield, :class => "fields") + required)
+      else
+        yield
+      end
     end
   end
 end

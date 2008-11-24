@@ -1,6 +1,8 @@
 LabeledFormHelper
 =================
 
+Based on technoweenie's labeled_form_helper
+
 The LabeledFormHelper gives you helpers for label tags:
 
   <%= label_tag('post_title', 'Title') %>
@@ -9,10 +11,33 @@ The LabeledFormHelper gives you helpers for label tags:
   <%= label_for('post', 'category') %>
   <label for="post_category">Category</label>
 
+In its most basic form (use CSS to set label.form_label to display: block for multi-line label/field combinations):
+
   <% form_for :person, @person, :url => { :action => "update" } do |f| %>
-    First name: <%= f.text_field :first_name %>
+    <%= f.text_field :first_name %>
+  <% end %>
+
+  <form action="update">
+    <p><label class="form_label" for="person_first_name">First Name</label><span class="fields"><input type="text" id="person_first_name" name="person[first_name]" /></span></p>
+  </form>
+
+Provide an alternate label and mark a field as required:
+
+  <% form_for :person, @person, :url => { :action => "update" } do |f| %>
+    <%= f.text_field :first_name, :label => "Name", :required => true %>
   <% end %>
   
   <form action="update">
-    <p><label for="person_first_name">First Name</label><br /><input type="text" id="person_first_name" name="person[first_name]" /></p>
+    <p><label class="form_label" for="person_first_name">Name</label><span class="fields"><input type="text" id="person_first_name" name="person[first_name]" /></span><span class="required">* required</span></p>
   </form>
+
+Disable field labeling:
+
+  <% form_for :person, @person, :url => { :action => "update" } do |f| %>
+    <%= f.text_field :first_name, :label => false %>
+  <% end %>
+
+  <form action="update">
+    <input type="text" id="person_first_name" name="person[first_name]" />
+  </form>
+
